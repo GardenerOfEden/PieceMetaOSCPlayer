@@ -8,27 +8,43 @@
 
 #include "APIClient.h"
 
-data_package_t APIClient::find(std::string dataPackageId)
+data_package_t APIClient::loadUrl(std::string url)
 {
     complete = false;
     data_package_t result;
     unsigned int maxFrames = 0;
     float frameRate = .0;
+    bool loadPackageSuccess;
     ofxJSONElement dataPackage;
     ofxJSONElement dataChannels;
     
-    if (dataPackage.open("http://localhost:8080/data_packages/" + dataPackageId))
+    try
     {
-        result.title = dataPackage["title"].asString();
-        result.packageId = dataPackage["id"].asString();
+        loadPackageSuccess = dataPackage.open(url);
     }
-    else
+    catch(int e)
     {
-        ofLogNotice("APIClient::find")  << "data package parse error for package id: " << dataPackageId << endl;
+        ofLogNotice("APIClient::find") << "exception while loading json: " << e << '\n';
         return result;
     }
     
-    if (dataChannels.open("http://localhost:8080/data_packages/" + dataPackageId + "/channels"))
+    if (loadPackageSuccess)
+    {
+        if (!dataPackage.isObject() || dataPackage.isMember("code")) {
+            ofLogNotice("APIClient::find")  << "data package load error for package url: " << url << endl;
+            return result;
+        } else {
+            result.title = dataPackage["title"].asString();
+            result.packageId = dataPackage["id"].asString();
+        }
+    }
+    else
+    {
+        ofLogNotice("APIClient::find")  << "data package parse error for package url: " << url << endl;
+        return result;
+    }
+    
+    if (dataChannels.open(url + "/channels"))
     {
         for(unsigned int c = 0; c < dataChannels.size(); ++c)
         {
@@ -39,7 +55,7 @@ data_package_t APIClient::find(std::string dataPackageId)
             dataChannel.title = dataChannels[c]["title"].asString();
             dataChannel.channelId = dataChannels[c]["id"].asString();
             
-            if (dataStreams.open("http://localhost:8080/data_packages/" + dataPackageId + "/channels/" + dataChannels[c]["id"].asString() + "/streams")) {
+            if (dataStreams.open(url + "/channels/" + dataChannels[c]["id"].asString() + "/streams")) {
                 
                 std::map<std::string, data_stream_t> streams;
                 
@@ -87,14 +103,14 @@ data_package_t APIClient::find(std::string dataPackageId)
             }
             else
             {
-                ofLogNotice("APIClient::find")  << "data streams parse error for package id: " << dataPackageId << endl;
+                ofLogNotice("APIClient::find")  << "data streams parse error for package url: " << url << endl;
             }
             
         }
     }
     else
     {
-        ofLogNotice("APIClient::find")  << "data channels parse error for package id: " << dataPackageId << endl;
+        ofLogNotice("APIClient::find")  << "data channels parse error for package url: " << url << endl;
         return result;
     }
     

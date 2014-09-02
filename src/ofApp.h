@@ -4,9 +4,10 @@
 #include "ofxOsc.h"
 #include "ofxUI.h"
 #include "APIClient.h"
+#include "ClipboardAccess.h"
 
-#define HOST "127.0.0.1"
-#define PORT 8888
+#define OSC_HOST "127.0.0.1"
+#define OSC_PORT 8888
 
 class ofApp : public ofBaseApp{
     

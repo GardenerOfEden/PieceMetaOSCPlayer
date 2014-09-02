@@ -9,7 +9,6 @@ void ofApp::setup()
     
     ofSetWindowTitle("PieceMetaOSCPlayer");
     
-    ofApp::setupOSC(HOST, PORT);
     ofApp::setupGUI();
     
     currentFrame = 0;
@@ -93,35 +92,32 @@ void ofApp::setupGUI()
     urlGui = new ofxUICanvas();
     urlGui->setPosition(0.0, 0.0);
     urlGui->setWidth(ofGetWindowWidth());
-    urlGui->setHeight(80.0);
+    urlGui->setHeight(100.0);
     urlGui->setColorBack(ofxUIColor(100,100,100,20));
     urlGui->setColorFill(ofxUIColor(60,60,60,255));
     urlGui->setColorFillHighlight(ofxUIColor(60,120,255,255));
     urlGui->setColorOutline(ofxUIColor(60,60,60,255));
     urlGui->setColorOutlineHighlight(ofxUIColor(60,120,255,255));
-    urlGui->setAutoDraw(true);
-    urlGui->setAutoUpdate(true);
     
     urlGui->setName("DATA");
-    urlGui->addLabel("DATA PACKAGE ID");
+    urlGui->addLabel("DATA URL");
     urlGui->addSpacer();
-    urlGui->addTextInput("DATA_URL", "5404cff005e267d804878526")->setAutoClear(false);
-    urlGui->addButton("LOAD_DATA", true);
+    urlGui->addTextInput("DATA_URL", "")->setAutoClear(false);
+    urlGui->addButton("PASTE DATA URL FROM CLIPBOARD", false);
+    urlGui->addButton("LOAD DATA", false);
     
     ofAddListener(urlGui->newGUIEvent, this, &ofApp::guiEvent);
     urlGui->loadSettings("url");
     
     mainGui = new ofxUICanvas();
-    mainGui->setPosition(ofGetWindowWidth()-150.0, 80.0);
+    mainGui->setPosition(ofGetWindowWidth()-150.0, 100.0);
     mainGui->setWidth(150.0);
-    mainGui->setHeight(ofGetWindowHeight()-80.0);
+    mainGui->setHeight(ofGetWindowHeight()-100.0);
     mainGui->setColorBack(ofxUIColor(100,100,100,20));
     mainGui->setColorFill(ofxUIColor(60,60,60,255));
     mainGui->setColorFillHighlight(ofxUIColor(60,120,255,255));
     mainGui->setColorOutline(ofxUIColor(60,60,60,255));
     mainGui->setColorOutlineHighlight(ofxUIColor(60,120,255,255));
-    mainGui->setAutoDraw(true);
-    mainGui->setAutoUpdate(true);
     
     mainGui->setName("SETTINGS");
     mainGui->addLabel("SETTINGS");
@@ -147,10 +143,10 @@ void ofApp::setupGUI()
     mainGui->setWidgetFontSize(OFX_UI_FONT_SMALL);
     
     mainGui->addLabel("IP ADDRESS", OFX_UI_FONT_SMALL);
-    mainGui->addTextInput("IP_ADDRESS", "127.0.0.1")->setAutoClear(false);
+    mainGui->addTextInput("IP_ADDRESS", OSC_HOST)->setAutoClear(false);
     
     mainGui->addLabel("UDP PORT", OFX_UI_FONT_SMALL);
-    mainGui->addTextInput("UDP_PORT", "8888")->setAutoClear(false);
+    mainGui->addTextInput("UDP_PORT", ofToString(OSC_PORT))->setAutoClear(false);
     
     ofAddListener(mainGui->newGUIEvent, this, &ofApp::guiEvent);
     
@@ -164,17 +160,15 @@ void ofApp::createChannelMixer()
         delete channelGui;
     }
     channelGui = new ofxUIScrollableCanvas();
-    channelGui->setPosition(0.0, 80.0);
+    channelGui->setPosition(0.0, 100.0);
     channelGui->setScrollableDirections(false, true);
     channelGui->setWidth(ofGetWindowWidth()-150.0);
-    channelGui->setHeight(ofGetWindowHeight()-80.0);
+    channelGui->setHeight(ofGetWindowHeight()-100.0);
     channelGui->setColorBack(ofxUIColor(100,100,100,20));
     channelGui->setColorFill(ofxUIColor(60,60,60,255));
     channelGui->setColorFillHighlight(ofxUIColor(60,120,255,255));
     channelGui->setColorOutline(ofxUIColor(60,60,60,255));
     channelGui->setColorOutlineHighlight(ofxUIColor(60,120,255,255));
-    channelGui->setAutoDraw(true);
-    channelGui->setAutoUpdate(true);
     
     channelGui->setName("CHANNELS");
     
@@ -250,21 +244,37 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
     else if (e.getName() == "IP_ADDRESS")
     {
         ofxUITextInput *ti = (ofxUITextInput *) e.widget;
-        ofApp::setupOSC(ti->getTextString(), PORT);
+        std::string port = ((ofxUITextInput *) mainGui->getWidget("UDP_PORT"))->getTextString();
+        ofApp::setupOSC(ti->getTextString(), ofToInt(port));
     }
     else if (e.getName() == "UDP_PORT")
     {
         ofxUITextInput *ti = (ofxUITextInput *) e.widget;
+        std::string host = ((ofxUITextInput *) mainGui->getWidget("IP_ADDRESS"))->getTextString();
+        ofApp::setupOSC(host, ofToInt(ti->getTextString()));
     }
-    else if (e.getName() == "LOAD_DATA")
+    else if (e.getName() == "PASTE DATA URL FROM CLIPBOARD")
+    {
+        ofxUITextInput *ti = (ofxUITextInput *) e.widget;
+        ((ofxUITextInput *) urlGui->getWidget("DATA_URL"))->setTextString(ClipboardAccess::getTextFromClipboard());
+    }
+    else if (e.getName() == "LOAD DATA")
     {
         ((ofxUIToggle *) mainGui->getWidget("PLAY"))->setValue(false);
         active = false;
         currentFrame = 0;
-        std::string packageId = ((ofxUITextInput *) urlGui->getWidget("DATA_URL"))->getTextString();
-        dataPackage = apiClient.find(packageId);
-        ((ofxUITextInput *) mainGui->getWidget("TARGET_FPS"))->setTextString(ofToString(dataPackage.frameRate));
-        ofSetFrameRate(dataPackage.frameRate);
+        std::string packageUrl = ((ofxUITextInput *) urlGui->getWidget("DATA_URL"))->getTextString();
+        dataPackage = apiClient.loadUrl(packageUrl);
+        if (apiClient.complete)
+        {
+            ((ofxUITextInput *) mainGui->getWidget("TARGET_FPS"))->setTextString(ofToString(dataPackage.frameRate));
+            ofSetFrameRate(dataPackage.frameRate);
+        }
+        else
+        {
+            ((ofxUITextInput *) mainGui->getWidget("TARGET_FPS"))->setTextString(ofToString(30));
+            ofSetFrameRate(30);
+        }
         ofApp::createChannelMixer();
     }
 }

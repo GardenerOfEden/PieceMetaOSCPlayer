@@ -39,5 +39,5 @@ class APIClient {
     
 public:
     bool complete = false;
-    data_package_t find(std::string dataPackageId);
+    data_package_t loadUrl(std::string url);
 };
