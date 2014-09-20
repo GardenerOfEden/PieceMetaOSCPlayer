@@ -11,40 +11,40 @@
 char* ClipboardAccess::getTextFromClipboard()
 {
     char* data;
-    
+
     #ifdef __APPLE__
-    
+
 	OSStatus             err = noErr;
     ItemCount            itemCount;
 	PasteboardSyncFlags  syncFlags;
 	static PasteboardRef inPasteboard = NULL;
 	PasteboardCreate( kPasteboardClipboard, &inPasteboard );
 	data = "";
-    
+
 	syncFlags = PasteboardSynchronize( inPasteboard );
 	err = badPasteboardSyncErr;
-    
+
     err = PasteboardGetItemCount( inPasteboard, &itemCount );
     require_noerr( err, CantGetPasteboardItemCount );
-    
+
     for( int itemIndex = 1; itemIndex <= itemCount; itemIndex++ ) {
         PasteboardItemID  itemID;
 		CFDataRef  flavorData;
-        
+
         err = PasteboardGetItemIdentifier( inPasteboard, itemIndex, &itemID );
         require_noerr( err, CantGetPasteboardItemIdentifier );
-        
+
 		err = PasteboardCopyItemFlavorData( inPasteboard, itemID, CFSTR("public.utf8-plain-text"), &flavorData );
 		data = (char*)CFDataGetBytePtr(flavorData);
-        
+
     CantGetPasteboardItemIdentifier:
 		;
     }
-    
+
 CantGetPasteboardItemCount:
-    
+
     #endif
-    
+
     #ifdef __MINGW32__
     std::string clipBoardText = "";
     if (OpenClipboard(NULL)){
@@ -56,11 +56,11 @@ CantGetPasteboardItemCount:
             CloseClipboard();
         }
     }
-    data = clipBoardText;
+    data = strstr(clipBoardText.c_str(), "");
     #endif
-    
+
     #ifdef __linux__
     #endif
-    
+
     return data;
 }
