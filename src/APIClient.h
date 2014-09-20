@@ -36,8 +36,8 @@ struct data_package_t
 };
 
 class APIClient {
-    
+
 public:
-    bool complete = false;
+    bool complete;
     data_package_t loadUrl(std::string url);
 };
