@@ -6,6 +6,8 @@
 //
 //
 
+#pragma once
+
 #ifdef __MINGW32__
 #include "windows.h"
 #endif
@@ -18,5 +20,3 @@ class ClipboardAccess {
 public:
     static char* getTextFromClipboard();
 };
-
-

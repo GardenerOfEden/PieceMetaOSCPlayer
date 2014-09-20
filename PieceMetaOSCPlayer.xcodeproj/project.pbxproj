@@ -3003,6 +3003,43 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>D0F874918547F9AEF5919538</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>AppGui.h</string>
+				<key>path</key>
+				<string>src/AppGui.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>68511DAB28E5A27C6788135E</key>
+			<dict>
+				<key>fileRef</key>
+				<string>58632411BF1D4346E272CA8A</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>58632411BF1D4346E272CA8A</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>AppGui.cpp</string>
+				<key>path</key>
+				<string>src/AppGui.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>AEA7E3A0030789AFFB5CC1C4</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -3590,6 +3627,7 @@
 					<string>E4B69E200A3A1BDC003C02F2</string>
 					<string>E4B69E210A3A1BDC003C02F2</string>
 					<string>E16788D63066EAA59D8C4AE5</string>
+					<string>68511DAB28E5A27C6788135E</string>
 					<string>BB9CBD3CF55219C9E56CEE69</string>
 					<string>72A929D3561B8232A182ABFC</string>
 					<string>5864AD82E20F15536D054EA3</string>
@@ -3959,6 +3997,8 @@
 					<string>E4B69E1F0A3A1BDC003C02F2</string>
 					<string>025F8A4FE953DBFC3C5B651D</string>
 					<string>AEA7E3A0030789AFFB5CC1C4</string>
+					<string>58632411BF1D4346E272CA8A</string>
+					<string>D0F874918547F9AEF5919538</string>
 					<string>FF7EBF8596888BCF00E13DAD</string>
 					<string>44198DA08A26D5577EE3F51A</string>
 				</array>
