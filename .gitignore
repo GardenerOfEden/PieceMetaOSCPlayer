@@ -2,6 +2,7 @@
 .DS_Store
 build/
 bin/
+obj/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -19,4 +20,49 @@ DerivedData
 .idea/
 # Pods - for those of you who use CocoaPods
 Pods
+
+*.depend
+*.layout
+
+# Visual Studio
+*.sdf
+*.opensdf
+*.suo
+*.pdb
+*.ilk
+*.aps
+ipch/
+
+# Eclipse
+.metadata
+local.properties
+.externalToolBuilders
+
+#########################
+# operating system
+#########################
+
+# Linux
+*~
+# KDE
+.directory
+.AppleDouble
+
+# OSX
+.DS_Store
+*.swp
+*~.nib
+# Thumbnails
+._*
+
+# Windows
+# Windows image file caches
+Thumbs.db
+# Folder config file
+Desktop.ini
+
+# Android
+.csettings
+/libs/openFrameworksCompiled/project/android/paths.make
+
 !.gitkeep
