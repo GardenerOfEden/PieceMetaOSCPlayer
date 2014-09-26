@@ -40,22 +40,26 @@ void ofApp::draw()
             unsigned int streamSize = dataPackage.dataChannels[c].dataStreams.size();
             for(unsigned int s = 0; s < streamSize; ++s)
             {
+                std:string streamPath = dataPackage.dataChannels[c].title + "/" + dataPackage.dataChannels[c].dataStreams[s].group;
                 
-                if (currentFrame < dataPackage.dataChannels[c].dataStreams[s].dataFrames.size())
-                {
-                    ofxOscMessage m;
-                    m.setAddress("/" + dataPackage.dataChannels[c].title + "/" + dataPackage.dataChannels[c].dataStreams[s].group);
-                    
-                    if (dataPackage.dataChannels[c].dataStreams[s].group == "")
+                if(std::find(activeTracks.begin(), activeTracks.end(), streamPath) != activeTracks.end()) {
+                
+                    if (currentFrame < dataPackage.dataChannels[c].dataStreams[s].dataFrames.size())
                     {
-                        m.setAddress("/" + dataPackage.dataChannels[c].title + "/" + dataPackage.dataChannels[c].dataStreams[s].group + "/" + dataPackage.dataChannels[c].dataStreams[s].title);
+                        ofxOscMessage m;
+                        m.setAddress("/" + dataPackage.dataChannels[c].title);
+                        
+                        if (dataPackage.dataChannels[c].dataStreams[s].group != "" && dataPackage.dataChannels[c].dataStreams[s].group != "grouped")
+                        {
+                            m.setAddress("/" + dataPackage.dataChannels[c].title + "/" + dataPackage.dataChannels[c].dataStreams[s].group + "/" + dataPackage.dataChannels[c].dataStreams[s].title);
+                        }
+                        
+                        for (std::map<std::string, float>::iterator i = dataPackage.dataChannels[c].dataStreams[s].dataFrames[currentFrame].begin(); i != dataPackage.dataChannels[c].dataStreams[s].dataFrames[currentFrame].end(); i++)
+                        {
+                            m.addFloatArg(i->second);
+                        }
+                        dataBundle.addMessage(m);
                     }
-                    
-                    for (std::map<std::string, float>::iterator i = dataPackage.dataChannels[c].dataStreams[s].dataFrames[currentFrame].begin(); i != dataPackage.dataChannels[c].dataStreams[s].dataFrames[currentFrame].end(); i++)
-                    {
-                        m.addFloatArg(i->second);
-                    }
-                    dataBundle.addMessage(m);
                 }
             }
         }
@@ -186,13 +190,13 @@ void ofApp::createChannelMixer()
         for(unsigned int s = 0; s < streamSize; ++s)
         {
         std:string streamPath = dataPackage.dataChannels[c].title + "/" + dataPackage.dataChannels[c].dataStreams[s].group;
-            channelGui->addToggle(streamPath, true, 20.0, 20.0, 0.0, 0.0);
+            channelGui->addToggle(streamPath, false, 20.0, 20.0, 0.0, 0.0);
             channelGui->addSpacer();
         }
     }
     
     channelGui->autoSizeToFitWidgets();
-    ofAddListener(channelGui->newGUIEvent, this, &ofApp::guiEvent);
+    ofAddListener(channelGui->newGUIEvent, this, &ofApp::channelGuiEvent);
 }
 
 void ofApp::exit()
@@ -276,6 +280,33 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
             ofSetFrameRate(30);
         }
         ofApp::createChannelMixer();
+    }
+}
+
+void ofApp::channelGuiEvent(ofxUIEventArgs &e)
+{
+    unsigned int channelSize = dataPackage.dataChannels.size();
+    for(unsigned int c = 0; c < channelSize; ++c)
+    {
+        unsigned int streamSize = dataPackage.dataChannels[c].dataStreams.size();
+        for(unsigned int s = 0; s < streamSize; ++s)
+        {
+            std:string streamPath = dataPackage.dataChannels[c].title + "/" + dataPackage.dataChannels[c].dataStreams[s].group;
+            ofxUIToggle *toggle = (ofxUIToggle *) e.widget;
+            if (streamPath == e.getName())
+            {
+                if (toggle->getValue()) {
+                    activeTracks.push_back(streamPath);
+                } else {
+                    for (unsigned int i = 0; i < activeTracks.size(); ++i)
+                    {
+                        if (streamPath == activeTracks[i]) {
+                            activeTracks.erase(activeTracks.begin() + i);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

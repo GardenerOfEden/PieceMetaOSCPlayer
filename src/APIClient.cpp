@@ -44,7 +44,7 @@ data_package_t APIClient::loadUrl(std::string url)
         return result;
     }
     
-    if (dataChannels.open(url + "/channels"))
+    if (dataChannels.open(url + "/channels.json"))
     {
         for(unsigned int c = 0; c < dataChannels.size(); ++c)
         {
@@ -52,10 +52,12 @@ data_package_t APIClient::loadUrl(std::string url)
             data_channel_t dataChannel;
             ofxJSONElement dataStreams;
             
+            ofLogNotice("importJSON") << dataChannels.getRawString();
+            
             dataChannel.title = dataChannels[c]["title"].asString();
             dataChannel.channelId = dataChannels[c]["id"].asString();
             
-            if (dataStreams.open(url + "/channels/" + dataChannels[c]["id"].asString() + "/streams")) {
+            if (dataStreams.open(url + "/channels/" + dataChannels[c]["id"].asString() + "/streams.json")) {
                 
                 std::map<std::string, data_stream_t> streams;
                 

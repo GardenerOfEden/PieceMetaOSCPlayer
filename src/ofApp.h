@@ -20,6 +20,7 @@ class ofApp : public ofBaseApp{
         void exit();
         void windowResized(int w, int h);
         void guiEvent(ofxUIEventArgs &e);
+        void channelGuiEvent(ofxUIEventArgs &e);
         void setupGUI();
         void createChannelMixer();
 
@@ -29,6 +30,8 @@ class ofApp : public ofBaseApp{
         int currentFrame;
         bool active;
         bool loop;
+    
+        vector<std::string> activeTracks;
     
         ofxOscSender sender;
         data_package_t dataPackage;
