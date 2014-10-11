@@ -18,9 +18,19 @@ data_package_t APIClient::loadUrl(std::string url)
     ofxJSONElement dataPackage;
     ofxJSONElement dataChannels;
     
+    Poco::URI resourceURI(url);
+    Poco::Path resourcePath(resourceURI.getPath());
+    
+    std::string urlBase = resourceURI.getScheme() + "://" + resourceURI.getHost();
+    std::string basePath = resourcePath.getBaseName();
+    if (resourceURI.getPort() != 80 || resourceURI.getPort() != 443)
+    {
+        urlBase += ":" + ofToString(resourceURI.getPort());
+    }
+    
     try
     {
-        loadPackageSuccess = dataPackage.open(url);
+        loadPackageSuccess = dataPackage.open(urlBase + resourceURI.getPath() + ".json");
     }
     catch(int e)
     {
@@ -44,7 +54,7 @@ data_package_t APIClient::loadUrl(std::string url)
         return result;
     }
     
-    if (dataChannels.open(url + "/channels.json"))
+    if (dataChannels.open(urlBase + resourceURI.getPath() + "/channels.json"))
     {
         for(unsigned int c = 0; c < dataChannels.size(); ++c)
         {
@@ -52,12 +62,12 @@ data_package_t APIClient::loadUrl(std::string url)
             data_channel_t dataChannel;
             ofxJSONElement dataStreams;
             
-            ofLogNotice("importJSON") << dataChannels.getRawString();
+            //ofLogNotice("importJSON") << dataChannels.getRawString();
             
             dataChannel.title = dataChannels[c]["title"].asString();
             dataChannel.channelId = dataChannels[c]["id"].asString();
             
-            if (dataStreams.open(url + "/channels/" + dataChannels[c]["id"].asString() + "/streams.json")) {
+            if (dataStreams.open(urlBase + "/channels/" + dataChannels[c]["id"].asString() + "/streams.json")) {
                 
                 std::map<std::string, data_stream_t> streams;
                 
@@ -70,17 +80,17 @@ data_package_t APIClient::loadUrl(std::string url)
                         dataStream.title = dataStreams[s]["title"].asString();
                         dataStream.group = dataStreams[s]["group"].asString();
                         
-                        unsigned int frameCount = dataStreams[s]["data_frames"].size();
+                        unsigned int frameCount = dataStreams[s]["frames"].size();
                         if (frameCount > maxFrames) {
                             maxFrames = frameCount;
                         }
-                        if (dataStreams[s]["frame_rate"].asFloat() > frameRate) {
-                            frameRate = dataStreams[s]["frame_rate"].asFloat();
+                        if (dataStreams[s]["fps"].asFloat() > frameRate) {
+                            frameRate = dataStreams[s]["fps"].asFloat();
                         }
                         for(unsigned int v = 0; v < frameCount; ++v)
                         {
                             std::map<std::string, float> frameValues;
-                            frameValues[dataStreams[s]["title"].asString()] = dataStreams[s]["data_frames"][v].asFloat();
+                            frameValues[dataStreams[s]["title"].asString()] = dataStreams[s]["frames"][v].asFloat();
                             dataStream.dataFrames.push_back(frameValues);
                         }
                         
@@ -90,7 +100,7 @@ data_package_t APIClient::loadUrl(std::string url)
                     {
                         for(unsigned int f = 0; f < streams[dataStreams[s]["group"].asString()].dataFrames.size(); ++f)
                         {
-                            streams[dataStreams[s]["group"].asString()].dataFrames[f][dataStreams[s]["title"].asString()] = dataStreams[s]["data_frames"][f].asFloat();
+                            streams[dataStreams[s]["group"].asString()].dataFrames[f][dataStreams[s]["title"].asString()] = dataStreams[s]["frames"][f].asFloat();
                         }
                     }
                 }
@@ -119,7 +129,7 @@ data_package_t APIClient::loadUrl(std::string url)
     result.frameRate = frameRate;
     result.frameCount = maxFrames;
     
-    ofLogNotice("APIClient::find") << "successfully fetched data package with id: " << result.packageId << endl;
+    //ofLogNotice("APIClient::find") << "successfully fetched data package with id: " << result.packageId << endl;
     
     complete = true;
     return result;

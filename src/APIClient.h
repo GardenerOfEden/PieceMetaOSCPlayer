@@ -9,6 +9,9 @@
 
 #include <iostream>
 #include <vector>
+#include "ofMain.h"
+#include "Poco/Path.h"
+#include "Poco/URI.h"
 #include "ofxJSONElement.h"
 
 struct data_stream_t

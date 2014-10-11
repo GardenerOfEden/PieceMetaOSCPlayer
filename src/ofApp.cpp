@@ -28,8 +28,13 @@ void ofApp::update()
 
 void ofApp::draw()
 {
-    ofBackground(0xFFFFFF);
-    ofSetHexColor(0x000000);
+    /*
+    ofBackground(ofColor(64,61,60,255));
+    ofSetHexColor(0xD3CBBD);
+     */
+    
+    ofBackground(ofColor(255,255,255,255));
+    ofSetColor(ofColor(60,60,60,255));
     
     if (active && apiClient.complete) {
         ofxOscBundle dataBundle;
@@ -97,6 +102,14 @@ void ofApp::setupGUI()
     urlGui->setPosition(0.0, 0.0);
     urlGui->setWidth(ofGetWindowWidth());
     urlGui->setHeight(100.0);
+    /*
+    urlGui->setColorBack(ofxUIColor(64,61,60,255));
+    urlGui->setColorFill(ofxUIColor(186,192,172,255));
+    urlGui->setColorFillHighlight(ofxUIColor(250,250,198,255));
+    urlGui->setColorOutline(ofxUIColor(152,168,158,255));
+    urlGui->setColorOutlineHighlight(ofxUIColor(186,192,172,255));
+     */
+    
     urlGui->setColorBack(ofxUIColor(100,100,100,20));
     urlGui->setColorFill(ofxUIColor(60,60,60,255));
     urlGui->setColorFillHighlight(ofxUIColor(60,120,255,255));
@@ -111,7 +124,7 @@ void ofApp::setupGUI()
     urlGui->addButton("LOAD DATA", false);
     
     ofAddListener(urlGui->newGUIEvent, this, &ofApp::guiEvent);
-    urlGui->loadSettings("url");
+    urlGui->loadSettings("url.xml");
     
     mainGui = new ofxUICanvas();
     mainGui->setPosition(ofGetWindowWidth()-150.0, 100.0);
@@ -154,7 +167,7 @@ void ofApp::setupGUI()
     
     ofAddListener(mainGui->newGUIEvent, this, &ofApp::guiEvent);
     
-	mainGui->loadSettings("settings");
+	mainGui->loadSettings("settings.xml");
 	
 }
 
@@ -201,8 +214,8 @@ void ofApp::createChannelMixer()
 
 void ofApp::exit()
 {
-	mainGui->saveSettings("settings");
-    urlGui->saveSettings("url");
+	mainGui->saveSettings("settings.xml");
+    urlGui->saveSettings("url.xml");
     delete mainGui;
     delete urlGui;
     delete channelGui;
